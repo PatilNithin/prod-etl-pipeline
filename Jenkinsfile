@@ -37,7 +37,8 @@ pipeline {
         stage('Linting') {
             steps {
                 // Run pylint on your Python files
-                sh "${PYTHON_EXEC} -m pylint dags/*.py scripts/*.py"
+                //sh "${PYTHON_EXEC} -m pylint dags/*.py scripts/*.py"
+                sh "${VENV_DIR}/bin/pylint dags/*.py scripts/*.py"
             }
         }
 
@@ -45,7 +46,8 @@ pipeline {
             steps {
                 // Run pytest on your test files
                 // pytest will automatically discover and run tests in the 'tests/' directory
-                sh "${PYTHON_EXEC} -m pytest tests/"
+                //sh "${PYTHON_EXEC} -m pytest tests/"
+                sh "${VENV_DIR}/bin/pytest tests/"
             }
         }
 
