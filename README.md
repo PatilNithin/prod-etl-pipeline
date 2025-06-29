@@ -1,13 +1,13 @@
 # Ultimate_datapipeline
 
 Creating a ETL data pipeline - 
-<br>
+<p>
 Extracting data from different source system to Google Big Query.
 The idea is to create data pipeline and create some dashboards on top of it -
 Retail Analytics Pipeline
-<br>
-Author - Nithin
-------------------------------------------------------------------------------------------
+</p>
+Author - Patil Nithin Kumar Reddy
+
 
 # Retail Analytics Pipeline
 
