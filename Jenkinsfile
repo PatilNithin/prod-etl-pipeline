@@ -17,7 +17,7 @@ pipeline {
             steps {
                 // Clones the repository
                 // IMPORTANT: Replace 'your-github-credentials-id' with the actual ID of your GitHub PAT credentials in Jenkins
-                git branch: 'main', url: '[https://github.com/PatilNithin/prod-etl-pipeline.git](https://github.com/PatilNithin/prod-etl-pipeline.git)', credentialsId: 'github-patilnithin-pat'
+                git 'https://github.com/PatilNithin/prod-etl-pipeline.git'
             }
         }
 
