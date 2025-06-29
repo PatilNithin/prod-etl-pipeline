@@ -17,10 +17,8 @@ from google.cloud import storage
 from google.oauth2 import service_account
 from airflow.operators.empty import EmptyOperator
 import pendulum
+import sys
 
-current_dir = os.path.dirname(os.path.abspath(__file__))
-project_root = os.path.join(current_dir, '..') 
-scripts_dir = os.path.join(project_root, 'scripts')
 
 import dataproc_utils as dp_utils
 import data_genarator as dg
