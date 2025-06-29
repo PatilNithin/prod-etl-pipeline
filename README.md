@@ -58,10 +58,10 @@ Load:
 # CI/CD pipeline
 
 <P>We will raise a Jenkin server to set up a CI/CD pipeline from git hub to the production</p>
-1. Created a google compute engine for the Jenkins.
-2. Installed Jenkins,java ,git on the GCE.
-3. In the Jenkins interface under the credentials added the gcp service account credential ,Git Personal Access Token
-4. Created webhook for the jenkins trigger in git
-5. Built pipeline with webhook as the trigger
+1. Created a google compute engine for the Jenkins.<br>
+2. Installed Jenkins,java ,git on the GCE.<br>
+3. In the Jenkins interface under the credentials added the gcp service account credential ,Git Personal Access Token.<br>
+4. Created webhook for the jenkins trigger in git.<br>
+5. Built pipeline with webhook as the trigger.<br>
 
 <p> So, whenever we push the code into the github with new changes the code will be automatically deployed into the production </p>
