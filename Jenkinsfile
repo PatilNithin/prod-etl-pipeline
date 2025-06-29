@@ -7,26 +7,32 @@ pipeline {
         COMPOSER_DAGS_FOLDER = 'dags' // This is typically 'dags' in Composer's GCS bucket
         // Define a variable for the Python executable for consistency
         PYTHON_EXEC = 'python3' // Use 'python' if 'python3' is not available or desired
+        VENV_DIR = '.venv'
     }
 
     // REMOVED: The 'tools { python 'python3' }' block as it's not a recognized tool type for direct management.
     // Instead, we will rely on 'python3' being in the agent's PATH or specify its full path in 'sh' commands.
 
     stages {
-        
-        stage('Install Python Dependencies') {
+
+        stage('Setup Python Environment') {
             steps {
                 script {
-                    // Ensure pip is up-to-date
-                    sh "${PYTHON_EXEC} -m pip install --upgrade pip"
+                    echo "Creating Python virtual environment..."
+                    // Create the virtual environment
+                    sh "${PYTHON_EXEC} -m venv ${VENV_DIR}"
 
-                    // Install all project dependencies from a requirements.txt file
-                    // It's highly recommended to have a requirements.txt in your repo
-                    // listing all packages (faker, pandas, google-cloud-storage, pyspark, pytest, pylint etc.)
-                    sh "${PYTHON_EXEC} -m pip install -r requirements.txt"
+                    echo "Upgrading pip within the virtual environment..."
+                    // Explicitly use the pip from the virtual environment
+                    sh "${VENV_DIR}/bin/pip install --upgrade pip"
+
+                    echo "Installing project dependencies from requirements.txt..."
+                    // Install project dependencies into the virtual environment
+                    sh "${VENV_DIR}/bin/pip install -r requirements.txt"
                 }
             }
         }
+
 
         stage('Linting') {
             steps {
