@@ -1,51 +1,68 @@
 pipeline {
-    agent any
+    agent any // Or specify a label if you have dedicated Jenkins agents, e.g., agent { label 'my-python-agent' }
 
     environment {
         GCP_PROJECT_ID = 'pro-env-test'
         GCS_BUCKET_NAME = 'asia-south1-cloud-publishin-9441e4f8-bucket'
-        COMPOSER_DAGS_FOLDER = 'dags'
+        COMPOSER_DAGS_FOLDER = 'dags' // This is typically 'dags' in Composer's GCS bucket
+        // Define a variable for the Python executable for consistency
+        PYTHON_EXEC = 'python3' // Use 'python' if 'python3' is not available or desired
     }
 
-    tools {
-        // Make sure you have a Python installation configured in Jenkins Global Tool Configuration
-        python 'python3'
-    }
+    // REMOVED: The 'tools { python 'python3' }' block as it's not a recognized tool type for direct management.
+    // Instead, we will rely on 'python3' being in the agent's PATH or specify its full path in 'sh' commands.
 
     stages {
         stage('Checkout') {
             steps {
-                // Clones the repository 
-                git 'https://github.com/PatilNithin/prod-etl-pipeline.git'
+                // Clones the repository
+                // IMPORTANT: Replace 'your-github-credentials-id' with the actual ID of your GitHub PAT credentials in Jenkins
+                git branch: 'main', url: '[https://github.com/PatilNithin/prod-etl-pipeline.git](https://github.com/PatilNithin/prod-etl-pipeline.git)', credentialsId: 'github-patilnithin-pat'
+            }
+        }
+
+        stage('Install Python Dependencies') {
+            steps {
+                script {
+                    // Ensure pip is up-to-date
+                    sh "${PYTHON_EXEC} -m pip install --upgrade pip"
+
+                    // Install all project dependencies from a requirements.txt file
+                    // It's highly recommended to have a requirements.txt in your repo
+                    // listing all packages (faker, pandas, google-cloud-storage, pyspark, pytest, pylint etc.)
+                    sh "${PYTHON_EXEC} -m pip install -r requirements.txt"
+                }
             }
         }
 
         stage('Linting') {
             steps {
-                sh 'pip install pylint'
-                sh 'pylint dags/*.py scripts/*.py'
+                // Run pylint on your Python files
+                sh "${PYTHON_EXEC} -m pylint dags/*.py scripts/*.py"
             }
         }
 
         stage('Unit Tests') {
             steps {
-                // Install dependencies for testing
-                sh 'pip install pytest'
-                sh 'pip install faker'
-                // You might need to install pyspark locally for some tests
-                sh 'pip install pyspark'
-
-                // Run tests
-                sh 'pytest tests/'
+                // Run pytest on your test files
+                // pytest will automatically discover and run tests in the 'tests/' directory
+                sh "${PYTHON_EXEC} -m pytest tests/"
             }
         }
 
         stage('Deploy to Staging GCS') {
             steps {
-                withCredentials([file(credentialsId: 'gcp-credentials', variable: 'GCP_KEY')]) {
+                // Use withCredentials to securely access your GCP service account key
+                withCredentials([file(credentialsId: 'jenkins-service-acc', variable: 'GCP_KEY')]) {
                     sh """
-                    gcloud auth activate-service-account --key-file=\$GCP_KEY
+                    # Authenticate gcloud with the service account key
+                    gcloud auth activate-service-account --key-file=\$GCP_KEY --project=${GCP_PROJECT_ID}
+
+                    # Copy DAGs to a 'staging' subfolder in your Composer DAGs bucket
                     gsutil -m cp -r dags/* gs://${GCS_BUCKET_NAME}/staging/${COMPOSER_DAGS_FOLDER}/
+
+                    # Copy scripts to a 'staging' subfolder for scripts (or within dags folder if they are part of dags)
+                    // Note: If your Composer environment expects scripts in a different path (e.g., 'data' or 'plugins'), adjust this path.
                     gsutil -m cp -r scripts/* gs://${GCS_BUCKET_NAME}/staging/scripts/
                     """
                 }
@@ -56,17 +73,22 @@ pipeline {
             steps {
                 script {
                     // This input step provides a manual gate before deploying to production.
-                    // You can remove this for fully automated deployments.
-                    input "Deploy to production?"
+                    // You can remove this for fully automated deployments if desired.
+                    input message: "Approve deployment to production?", ok: "Deploy"
                 }
-                withCredentials([file(credentialsId: 'gcp-credentials', variable: 'GCP_KEY')]) {
+                withCredentials([file(credentialsId: 'jenkins-service-acc', variable: 'GCP_KEY')]) {
                     sh """
-                    gcloud auth activate-service-account --key-file=\$GCP_KEY
+                    # Authenticate gcloud with the service account key
+                    gcloud auth activate-service-account --key-file=\$GCP_KEY --project=${GCP_PROJECT_ID}
 
                     // This is the key to not disturbing running jobs. We copy to a final location from staging.
                     // Airflow's sync mechanism will pick up the changes atomically.
+
+                    # Copy DAGs from staging to the main Composer DAGs folder
                     gsutil -m cp -r gs://${GCS_BUCKET_NAME}/staging/${COMPOSER_DAGS_FOLDER}/* gs://${GCS_BUCKET_NAME}/${COMPOSER_DAGS_FOLDER}/
-                    gsutil -m cp -r gs://${GCS_BUCKET_NAME}/staging/scripts/* gs://${GCS_BUCKET_NAME}/${COMPOSER_DAGS_FOLDER}/
+
+                    # Copy scripts from staging to the main scripts folder (adjust if scripts go elsewhere in Composer)
+                    gsutil -m cp -r gs://${GCS_BUCKET_NAME}/staging/scripts/* gs://${GCS_BUCKET_NAME}/scripts/
                     """
                 }
             }
