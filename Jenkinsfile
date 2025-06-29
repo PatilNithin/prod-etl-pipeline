@@ -13,14 +13,7 @@ pipeline {
     // Instead, we will rely on 'python3' being in the agent's PATH or specify its full path in 'sh' commands.
 
     stages {
-        stage('Checkout') {
-            steps {
-                // Clones the repository
-                // IMPORTANT: Replace 'your-github-credentials-id' with the actual ID of your GitHub PAT credentials in Jenkins
-                git 'https://github.com/PatilNithin/prod-etl-pipeline.git'
-            }
-        }
-
+        
         stage('Install Python Dependencies') {
             steps {
                 script {
