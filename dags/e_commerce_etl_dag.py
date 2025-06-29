@@ -36,7 +36,7 @@ def genarator(st, **context):
     GCS_SERVICE_ACCOUNT_KEY_PATH = None # e.g., 'path/to/service-account-key.json'
     NUM_CUSTOMERS = 500
     NUM_PRODUCTS = 75
-    NUM_ORDERS = 10000
+    NUM_ORDERS = 100000
     logging.info(source_path,project_id)
     GCS_BUCKET_NAME,fake_file_path  = source_path.split('/',1)
     DATA_DIR = source_path.split('/',1)[1]
