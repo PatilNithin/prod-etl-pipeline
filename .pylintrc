@@ -1,0 +1,42 @@
+[MESSAGES CONTROL]
+# Disable specific error/warning codes that you accept or will fix later.
+# Start with disabling the critical import errors (E0401) and common style issues.
+disable=
+    C0303,  ; Trailing whitespace
+    C0301,  ; Line too long
+    C0114,  ; Missing module docstring
+    C0116,  ; Missing function or method docstring
+    C0103,  ; Invalid name (for variables like GCS_BUCKET_NAME, if you want to keep them UPPER_CASE)
+    W0611,  ; Unused import (fix these in code by removing unused imports)
+    W0718,  ; Broad exception caught (e.g., except Exception:)
+    W1203,  ; Use lazy % formatting in logging functions (e.g., use `logging.info("Message %s", var)` instead of `logging.info(f"Message {var}")`)
+    R0914,  ; Too many local variables
+    R0913,  ; Too many arguments
+    R0917,  ; Too many positional arguments
+    W0104,  ; Statement seems to have no effect (e.g., a variable assignment on its own line not used)
+    C0411,  ; Wrong import order (can be automatically fixed by 'isort' or manually)
+    C0412,  ; Ungrouped imports (can be automatically fixed by 'isort' or manually)
+    W0707,  ; Consider explicitly re-raising using 'raise ... from e'
+    W0719,  ; Raising too general exception
+    R1705,  ; Unnecessary "else" after "return"
+    R1732,  ; Consider using 'with' for resource-allocating operations
+    W0212   ; Access to a protected member
+
+[TYPECHECK]
+# List modules that Pylint should ignore for import errors (E0401).
+# These are typically modules that exist in your runtime environment (Airflow, Spark),
+# but not necessarily in your local linting environment.
+ignored-modules=
+    airflow,
+    airflow.utils,
+    airflow.utils.dates,
+    airflow.decorators,
+    airflow.exceptions,
+    airflow.models,
+    airflow.operators,
+    airflow.operators.empty,
+    pendulum,
+    google.cloud.storage,
+    google.oauth2.service_account,
+    pyspark.sql,
+    pyspark.sql.functions
