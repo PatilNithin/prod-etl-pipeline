@@ -1,17 +1,15 @@
 pipeline {
-    agent any // Or specify a label if you have dedicated Jenkins agents, e.g., agent { label 'my-python-agent' }
+    agent any
 
     environment {
         GCP_PROJECT_ID = 'pro-env-test'
         GCS_BUCKET_NAME = 'asia-south1-cloud-publishin-9441e4f8-bucket'
         COMPOSER_DAGS_FOLDER = 'dags' // This is typically 'dags' in Composer's GCS bucket
-        // Define a variable for the Python executable for consistency
-        PYTHON_EXEC = 'python3' // Use 'python' if 'python3' is not available or desired
+        // a variable for the Python executable for consistency
+        PYTHON_EXEC = 'python3'
         VENV_DIR = '.venv'
     }
 
-    // REMOVED: The 'tools { python 'python3' }' block as it's not a recognized tool type for direct management.
-    // Instead, we will rely on 'python3' being in the agent's PATH or specify its full path in 'sh' commands.
 
     stages {
 
@@ -19,11 +17,11 @@ pipeline {
             steps {
                 script {
                     echo "Creating Python virtual environment..."
-                    // Create the virtual environment
+                    // Create's the virtual environment
                     sh "${PYTHON_EXEC} -m venv ${VENV_DIR}"
 
                     echo "Upgrading pip within the virtual environment..."
-                    // Explicitly use the pip from the virtual environment
+
                     sh "${VENV_DIR}/bin/pip install --upgrade pip"
 
                     echo "Installing project dependencies from requirements.txt..."
@@ -36,7 +34,7 @@ pipeline {
 
         stage('Linting') {
             steps {
-                // Run pylint on your Python files
+                // Run's pylint on the Python files
                 //sh "${PYTHON_EXEC} -m pylint dags/*.py scripts/*.py"
                 sh "${VENV_DIR}/bin/pylint dags/*.py scripts/*.py"
             }
@@ -44,8 +42,7 @@ pipeline {
 
         stage('Unit Tests') {
             steps {
-                // Run pytest on your test files
-                // pytest will automatically discover and run tests in the 'tests/' directory
+                // Run's pytest on the Python files
                 //sh "${PYTHON_EXEC} -m pytest tests/"
                 sh "${VENV_DIR}/bin/pytest tests/"
             }
@@ -53,7 +50,7 @@ pipeline {
 
         stage('Deploy to Staging GCS') {
             steps {
-                // Use withCredentials to securely access your GCP service account key
+                // Useing withCredentials to securely access GCP service account key
                 withCredentials([file(credentialsId: 'jenkins-service-acc', variable: 'GCP_KEY')]) {
                     sh """
                     # Authenticate gcloud with the service account key
@@ -74,7 +71,7 @@ pipeline {
             steps {
                 script {
                     // This input step provides a manual gate before deploying to production.
-                    // You can remove this for fully automated deployments if desired.
+
                     input message: "Approve deployment to production?", ok: "Deploy"
                 }
                 withCredentials([file(credentialsId: 'jenkins-service-acc', variable: 'GCP_KEY')]) {
