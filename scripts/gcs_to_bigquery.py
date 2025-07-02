@@ -41,8 +41,6 @@ def main():
     elif args.input_format == "parquet":
         df = spark.read.format("parquet").load(file_path)
     elif args.input_format == "avro":
-        # Avro requires the Avro Spark package. Dataproc usually has it.
-        # If not, you'd add --packages org.apache.spark:spark-avro_2.12:YOUR_SPARK_VERSION
         df = spark.read.format("avro").load(file_path)
     else:
         raise ValueError(f"Unsupported input format: {args.input_format}")
@@ -53,16 +51,6 @@ def main():
     print("Schema of the loaded DataFrame:")
     df.printSchema()
     
-
-    # Example Transformation (optional)
-    # Let's say you want to add a new column or filter data
-    # df = df.withColumn("is_adult", col("age") >= 18)
-    # df = df.filter(col("city") == "New York")
-
-    # Define the BigQuery table identifier
-    # Format: project_id:dataset_id.table_id
-    # The project ID is usually auto-detected by Dataproc, but you can explicitly set it
-    # table_id = f"{spark.conf.get('spark.hadoop.google.cloud.project.id')}:{args.bq_output_dataset}.{args.bq_output_table}"
     table_id = f"{args.bq_output_dataset}.{args.bq_output_table}" # simpler if project is default or auto-detected
 
     print(f"Writing data to BigQuery table: {table_id}")
