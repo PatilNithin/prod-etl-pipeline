@@ -25,7 +25,6 @@ disable=
 [TYPECHECK]
 # List modules that Pylint should ignore for import errors (E0401).
 # These are typically modules that exist in your runtime environment (Airflow, Spark),
-# but not necessarily in your local linting environment.
 ignored-modules=
     airflow,
     airflow.utils,
